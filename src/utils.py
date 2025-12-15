@@ -1,38 +1,36 @@
 import os
 import sys
 from pyspark.sql import SparkSession
-from dotenv import load_dotenv
 
 def get_spark_session(app_name='RedditAnalysis'):
     """
     creates a spark session configurated for my Windows environment and for read XML files
     """
 
-    load_dotenv()
-
     # ---1. Configurazione ambiente ---
-    hadoop_home = os.getenv('HADOOP_HOME')
-    java_home = os.getenv('JAVA_HOME')
+    os.environ['HADOOP_HOME'] = r"x"
+    os.environ['JAVA_HOME'] = r"x"
 
-    if not hadoop_home or not java_home:
-        print("Warning: HADOOP_HOME or JAVA_HOME not declared in the .env file")
-        print("Make sure you created the .env file")
-    else:
-        os.environ['HADOOP_HOME'] = hadoop_home
-        os.environ['JAVA_HOME'] = java_home
-
-    # Aggiornamento dei path di sistema
     sys_path = os.environ.get('PATH', '')
-    if os.environ.get('HADOOP_HOME', None) not in sys_path:
-        os.environ['PATH'] = os.environ['HADOOP_HOME'] + "\\bin;" + os.environ['JAVA_HOME'] + "\\bin;" + sys_path
+    if os.environ['HADOOP_HOME'] not in sys_path:
+        os.environ['PATH'] = os.environ['HADOOP_HOME'] + "\\bin;" + \
+                             os.environ['JAVA_HOME'] + "\\bin;" + \
+                             sys_path
 
     print(f"Enviromnment configuration completed. JAVA_HOME: {os.environ['JAVA_HOME']}")
+
+    try:
+        import findspark
+        findspark.init()
+    except ImportError:
+        pass
 
 
     # ---2. Creazione sessione spark ---
     try:
         #libreria esterna per leettura file xml
         xml_package = "com.databricks:spark-xml_2.12:0.17.0"
+        warehouse_dir = os.getenv('SPARK_WAREHOUSE', "file:///C:/temp")
 
         print(f"Starting spark session with xml package: {xml_package}...")
 
