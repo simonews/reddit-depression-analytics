@@ -1,0 +1,15 @@
+# Ignora i file di configurazione segreti
+.env
+
+# Ignora le cartelle dei dati
+data/
+
+# Ignora cache e file compilati Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+
+# Ignora cartelle IDE
+.idea/
+.vscode/
