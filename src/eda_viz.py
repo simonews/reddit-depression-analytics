@@ -43,38 +43,38 @@ def main():
     # --- 2. Analisi delle Parole (le 100 più usate) ---
     #Rimuovo parole troppo comuni manualmente per la visualizzazione
     custom_stop_words = [
-        # --- 1. Articoli e Preposizioni Standard ---
+        # --- 1. Articoli e preposizioni ---
         "the", "a", "an", "and", "or", "but", "if", "because", "as", "what",
         "when", "where", "how", "which", "who", "whom", "why", "from", "to",
         "of", "in", "on", "at", "by", "for", "with", "about", "into", "through",
         "during", "before", "after", "above", "below", "up", "down", "out", "off",
         "over", "under", "again", "further", "then", "once", "here", "there",
 
-        # --- 2. Verbi Ausiliari ---
+        # --- 2. verbi ---
         "is", "are", "was", "were", "be", "been", "being", "am", "im", "ive",
         "have", "has", "had", "having", "do", "does", "did", "doing",
         "can", "could", "shall", "should", "will", "would", "may", "might", "must",
 
-        # --- 3. Pronomi ---
-        "i", "me", "my", "myself", "we", "our", "ours", "ourselves",
+        # --- 3. pronomi ---
+        "i", "me", "my", "we", "our", "ours", "ourselves",
         "you", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself",
         "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their",
         "theirs", "themselves", "this", "that", "these", "those",
 
-        # --- 4. Filler Words (Parole vuote di significato) ---
+        # --- 4. parole vuote ---
         "just", "really", "very", "so", "like", "much", "many", "some", "any", "no", "not",
         "only", "own", "same", "too", "than", "also", "even", "back", "get", "go", "going", "got",
         "well", "way", "made", "make", "know", "think", "thing", "things", "see", "say", "said",
-        "want", "need", "good", "bad", "better", "best", "still", "never", "ever", "last",
+        "want", "good", "better", "best", "still", "never", "ever", "last",
         "right", "left", "sure", "actually", "maybe", "probably", "one", "two", "people",
         "someone", "something", "time", "years", "day", "days", "life", "look", "use",
         "all", "more", "now", "first", "since", "while", "lot", "little", "few", "take",
 
         # --- 5. Residui Tecnici & Web ---
         "http", "https", "www", "com", "reddit", "subreddit", "post", "posts", "comment", "comments",
-        "img", "png", "jpg", "html", "php", "url", "link", "deleted", "removed",
+        "img", "png", "jpg", "html", "php", "url", "link", "deleted", "removed", "org",
 
-        # --- 6. ARTEFATTI DI CONTRAZIONE (Il fix per le tue immagini) ---
+        # --- 6. Artefatti---
         "don", "didn", "doesn", "isn", "wasn", "weren", "hasn", "haven", "hadn",
         "won", "wouldn", "couldn", "shouldn", "cant", "cannot", "wont", "arent"
     ]
