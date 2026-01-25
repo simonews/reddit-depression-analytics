@@ -4,16 +4,22 @@ from pyspark.sql.types import IntegerType
 from pyspark.ml.feature import RegexTokenizer, StopWordsRemover
 
 def main():
-    # --- Avvio spark ---
+    #=====================
+    # START SPARK SESSION
+    #=====================
     spark = get_spark_session("Reddit_Full_NLp_ETL")
 
-    #Definiamo i percorsi dati
+    #===================
+    # DEFINING DATA PATH
+    #===================
     path_all_chunks = "data/chunk*/*.xml"
     path_labels = "data/risk-golden-truth-test.txt"
 
     print("\n Starting data analysis...")
 
-    # --- Lettura dei post (XML) ---
+    #====================
+    # POST READING (XML)
+    #====================
     print(f"Reading all XML chunks from: {path_all_chunks}...")
     try:
         df_raw = spark.read.format("xml").option("rowTag", "INDIVIDUAL").load(path_all_chunks)
@@ -21,8 +27,10 @@ def main():
         print(f"Error reading XML chunks: {e}")
         return
 
-    # --- Flattering: estrazione dei posto dalla gerarchia XML ---
-    # Struttura INVIDUAL -> ID, WRITING (array) -> TITLE, DATE, INFO, TEXT
+    #=============
+    # FLATTERING
+    #=============
+    # Structure: INDIVIDUAL -> ID, WRITING (array) -> TITLE, DATE, INFO, TEXT
     df_posts = df_raw.select(
         col("ID").alias("subject_id"),
         explode(col("WRITING")).alias("post")
@@ -34,26 +42,36 @@ def main():
         trim(col("post.TEXT")).alias("text")
     )
 
-    # ---Caricamento Label (TXT) ---
+    #=================
+    # LABEL LOAD (Txt)
+    #=================
     print(f"Reading labels from: {path_labels}...")
     df_labels = spark.read.text(path_labels)
 
-    # --- Mettiamo in ordine il formato (parsing) ---
-    # Formato: "subject1234 1"
+    #===============
+    # FORMAT PARSING
+    #===============
+    # Format: "subject1234 1"
     df_labels_clean = df_labels.select(
         split(col("value"), "\s+").getItem(0).alias("subject_id"),
         split(col("value"), "\s+").getItem(1).cast(IntegerType()).alias("label")
     )
 
-    # --- Join dei dati e delle label ---
+    #=====================
+    # JOIN DATA AND LABELS
+    #=====================
     print(f"Execution JOIN between Posts and Labels...")
-    #Inner join per tenere solo i post degli utenti etichettati
+    # Inner join: only posts of labeled users
     df_full = df_posts.join(df_labels_clean, on="subject_id", how="inner")
 
-    # --- Pipeline NLP per pulizia testo ---
+    #================================
+    # NLP PIPELINE FOR TEXT CLEANING
+    #================================
     print(f"Starting pipeline NLP for cleaning and tokenization...")
 
-    #1. Togliamo url/simboli e lasciamo tutto in lowercase
+    #========================================
+    # REMOVE SYMBOLS AND URL - ALL LOWERCASE
+    #========================================
     df_cleaned = df_full.withColumn(
         "clean_text",
         lower(col("text"))
@@ -65,18 +83,26 @@ def main():
         regexp_replace(col("clean_text"), r"[^a-zA-Z\s]", "")
     )
 
-    #2. Trasformazione da frase a lista di parole
+    #=======================
+    # PHRASE -> WORD's ARRAY
+    #=======================
     tokenizer = RegexTokenizer(inputCol="clean_text", outputCol="words", pattern="\\W")
     df_tokenized = tokenizer.transform(df_cleaned)
 
-    #3. Rimozione delle parole irrilevanti
+    #===========================
+    # IRRILEVANT WORDS REMOTION
+    #===========================
     remover = StopWordsRemover(inputCol="words", outputCol="filtered_words")
     df_final = remover.transform(df_tokenized)
 
-    # --- Output e stats ---
+    #=================
+    # OUTPUT AND STATS
+    #=================
     print("\n--- GLOBAL ANALYSIS RESULTS ---")
 
-    # Count totale dei post
+    #=============
+    # POSTS COUNT
+    #=============
     print("Calculating statistics...")
     total_posts = df_final.count()
     depressed_posts = df_final.filter("label = 1").count()

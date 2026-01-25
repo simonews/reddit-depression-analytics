@@ -2,16 +2,22 @@ from utils import get_spark_session
 from pyspark.sql.functions import explode, col, trim
 
 def main():
-    # ---1. Avvio di spark ---
+    #========================
+    # STARTING SPARK SESSION
+    #========================
     spark = get_spark_session("ETL_read_test")
 
-    # ---2. Definizione del file da leggere ---
+    #=========================
+    # DEFINITION FILE TO READ
+    #=========================
     path_chunk1 = "data/chunk1/*.xml"
 
     print(f"Attempting to read file from: {path_chunk1}")
 
     try:
-        # ---3. Lettura XML ---
+        #============
+        # XML READING
+        #============
         df_raw = spark.read \
                  .format("xml") \
                  .option("rowTag", "INDIVIDUAL") \
@@ -20,8 +26,10 @@ def main():
         print("Rough pattern detected:")
         df_raw.printSchema()
 
-        # ---4. Flattering ---
-        #Struttura INVIDUAL -> ID, WRITING (array) -> TITLE, DATE, INFO, TEXT
+        #============
+        # FLATTERING
+        #============
+        # Structure: INVIDUAL -> ID, WRITING (array) -> TITLE, DATE, INFO, TEXT
         df_posts = df_raw \
             .select(
             col("ID").alias("subject_id"),
@@ -29,13 +37,15 @@ def main():
             ) \
                 .select(
                 col("subject_id"),
-                trim(col("post.TITLE")).alias("title"),  #Rimozione spazi vuoti
-                col("post.DATE").cast("timestamp").alias("date"),  #Conversione stringa-data
+                trim(col("post.TITLE")).alias("title"),  # Empty space remove
+                col("post.DATE").cast("timestamp").alias("date"),  # String-data convertion
                 col("post.INFO").alias("source_info"),
                 trim(col("post.TEXT")).alias("text")
             )
 
-        # ---5. Output di verifica ---
+        #===============
+        # VERIFY OUTPUT
+        #===============
         print("Final schema:")
         df_posts.printSchema()
 

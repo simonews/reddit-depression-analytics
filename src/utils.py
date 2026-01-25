@@ -3,13 +3,14 @@ import sys
 from pyspark.sql import SparkSession
 
 def get_spark_session(app_name='RedditAnalysis'):
-    """
-    creates a spark session configurated for my Windows environment and for read XML files
-    """
+    # Creates a spark session configured for my Windows environment and for read XML files
 
-    # ---1. Configurazione ambiente ---
-    os.environ['HADOOP_HOME'] = r"x"
-    os.environ['JAVA_HOME'] = r"x"
+    #==========================
+    # ENVIRONMENT CONFIGURATION
+    #==========================
+
+    os.environ['HADOOP_HOME'] = r"C:\hadoop"
+    os.environ['JAVA_HOME'] = r"C:\Program Files\Eclipse Adoptium\jdk-11.0.29.7-hotspot"
 
     sys_path = os.environ.get('PATH', '')
     if os.environ['HADOOP_HOME'] not in sys_path:
@@ -26,9 +27,11 @@ def get_spark_session(app_name='RedditAnalysis'):
         pass
 
 
-    # ---2. Creazione sessione spark ---
+    #=======================
+    # SPARK SESSION CREATION
+    #=======================
     try:
-        #libreria esterna per leettura file xml
+        # External library for reading xml files
         xml_package = "com.databricks:spark-xml_2.12:0.17.0"
         warehouse_dir = os.getenv('SPARK_WAREHOUSE', "file:///C:/temp")
 

@@ -5,7 +5,9 @@ from wordcloud import WordCloud
 import os
 
 def generate_wordcloud(word_freqs, title, filename):
-    # --- Genero e salvo una wordcloud da un dizionario ---
+    #===========================================
+    # GENERATE AND SAVE A WORDCLOUD FROM A DICT
+    #===========================================
     wc = WordCloud(width=800, height=400, background_color='white').generate_from_frequencies(word_freqs)
 
     plt.figure(figsize=(10, 5))
@@ -19,49 +21,58 @@ def generate_wordcloud(word_freqs, title, filename):
 def main():
     spark = get_spark_session()
 
-    # ---1. Ricarico i dati in maniera rapida ---
+    #==================
+    # FAST DATA RELOAD
+    #==================
     print(f"Data reloading and preparing for the visualization...")
 
     path_all_chunks = "data/chunk*/*.xml"
     path_labels = "data/risk-golden-truth-test.txt"
 
-    #Caricamento XML
+    #===========
+    # LOAD XML
+    #===========
     df_raw = spark.read.format("xml").option("rowTag", "INDIVIDUAL").load(path_all_chunks)
     df_posts = df_raw.select(col("ID").alias("subject_id"), explode(col("WRITING")).alias("post")) \
         .select(col("subject_id"), lower(trim(col("post.TEXT"))).alias("text"))
 
-    #Caricamento labels
+    #============
+    # LOAD LABELS
+    #============
     df_labels = spark.read.text(path_labels)
     df_labels_clean = df_labels.select(
         split(col("value"), "\s+").getItem(0).alias("subject_id"),
         split(col("value"), "\s+").getItem(1).cast("int").alias("label")
     )
 
-    #Join
+    #======
+    # JOIN
+    #======
     df_full = df_posts.join(df_labels_clean, on="subject_id", how="inner")
 
-    # --- 2. Analisi delle Parole (le 100 più usate) ---
-    #Rimuovo parole troppo comuni manualmente per la visualizzazione
+    #===============
+    # WORD ANALYSIS
+    #===============
     custom_stop_words = [
-        # --- 1. Articoli e preposizioni ---
+        # Articles and prepositions
         "the", "a", "an", "and", "or", "but", "if", "because", "as", "what",
         "when", "where", "how", "which", "who", "whom", "why", "from", "to",
         "of", "in", "on", "at", "by", "for", "with", "about", "into", "through",
         "during", "before", "after", "above", "below", "up", "down", "out", "off",
         "over", "under", "again", "further", "then", "once", "here", "there",
 
-        # --- 2. verbi ---
+        # Verbs
         "is", "are", "was", "were", "be", "been", "being", "am", "im", "ive",
         "have", "has", "had", "having", "do", "does", "did", "doing",
         "can", "could", "shall", "should", "will", "would", "may", "might", "must",
 
-        # --- 3. pronomi ---
+        # Pronouns
         "i", "me", "my", "we", "our", "ours", "ourselves",
         "you", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself",
         "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their",
         "theirs", "themselves", "this", "that", "these", "those",
 
-        # --- 4. parole vuote ---
+        # Empty words
         "just", "really", "very", "so", "like", "much", "many", "some", "any", "no", "not",
         "only", "own", "same", "too", "than", "also", "even", "back", "get", "go", "going", "got",
         "well", "way", "made", "make", "know", "think", "thing", "things", "see", "say", "said",
@@ -70,24 +81,26 @@ def main():
         "someone", "something", "time", "years", "day", "days", "life", "look", "use",
         "all", "more", "now", "first", "since", "while", "lot", "little", "few", "take",
 
-        # --- 5. Residui Tecnici & Web ---
+        # Tech residues and web
         "http", "https", "www", "com", "reddit", "subreddit", "post", "posts", "comment", "comments",
         "img", "png", "jpg", "html", "php", "url", "link", "deleted", "removed", "org",
 
-        # --- 6. Artefatti---
+        # Artifacts
         "don", "didn", "doesn", "isn", "wasn", "weren", "hasn", "haven", "hadn",
         "won", "wouldn", "couldn", "shouldn", "cant", "cannot", "wont", "arent"
     ]
 
     print("Calculating words frequency for group 'Depression' (Label=1)...")
-    #Filtro depressi -> rompiamo le parole -> filtriamo stop words -> count
+    #Filter depressed -> break the words -> filter stop words -> count
     df_depressed = df_full.filter("label = 1") \
         .withColumn("word", explode(split(col("text"), "\\W+"))) \
         .filter(~col("word").isin(custom_stop_words)) \
         .filter(length(col("word")) > 2) \
         .groupBy("word").count().orderBy(desc("count")).limit(100)
 
-    #converto in dizionario locale (essendo 100 è fattibile)
+    #===================================
+    # CONVERT TO LOCAL DICT (Few words)
+    #===================================
     freq_depressed = {row['word']: row['count'] for row in df_depressed.collect()}
 
     print(f"Calculating words frequency for group 'Control' (Label=0)...")
@@ -99,7 +112,9 @@ def main():
 
     freq_control = {row['word']: row['count'] for row in df_control.collect()}
 
-    # ---3. Generazione dei grafici ---
+    #===================
+    # GRAPH GENERATION
+    #===================
     if not os.path.exists("plots"):
         os.makedirs("plots")
 
