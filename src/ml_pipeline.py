@@ -124,13 +124,10 @@ def main():
     print(f"Testing model on real data (unbalanced)...")
     predictions = model.transform(test_data)
 
-    evaluator_acc = MulticlassClassificationEvaluator(labelCol="label", predictionCol="prediction",
-                                                      metricName="accuracy")
+    evaluator_acc = MulticlassClassificationEvaluator(labelCol="label", predictionCol="prediction",metricName="accuracy")
     evaluator_f1 = MulticlassClassificationEvaluator(labelCol="label", predictionCol="prediction", metricName="f1")
-    evaluator_weighted_precision = MulticlassClassificationEvaluator(labelCol="label", predictionCol="prediction",
-                                                                     metricName="weightedPrecision")
-    evaluator_weighted_recall = MulticlassClassificationEvaluator(labelCol="label", predictionCol="prediction",
-                                                                  metricName="weightedRecall")
+    evaluator_weighted_precision = MulticlassClassificationEvaluator(labelCol="label", predictionCol="prediction",metricName="weightedPrecision")
+    evaluator_weighted_recall = MulticlassClassificationEvaluator(labelCol="label", predictionCol="prediction",metricName="weightedRecall")
 
     accuracy = evaluator_acc.evaluate(predictions)
     f1_score = evaluator_f1.evaluate(predictions)
