@@ -1,4 +1,4 @@
-from utils import get_spark_session
+from utils.utils import get_spark_session
 from pyspark.sql.functions import col, explode, lower, trim, split, concat_ws, collect_list, size, hour, dayofweek, avg, \
     count, lit, udf, log2, sum as _sum
 from pyspark.ml.feature import RegexTokenizer, StopWordsRemover, Word2Vec

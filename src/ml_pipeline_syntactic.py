@@ -1,4 +1,4 @@
-from utils import get_spark_session
+from utils.utils import get_spark_session
 from pyspark.sql.functions import col, explode, lower, trim, split, concat_ws, collect_list
 from pyspark.ml.feature import RegexTokenizer, StopWordsRemover, CountVectorizer, IDF
 from pyspark.ml.classification import LogisticRegression

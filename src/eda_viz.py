@@ -1,4 +1,4 @@
-from utils import get_spark_session
+from utils.utils import get_spark_session
 from pyspark.sql.functions import col,explode, lower, trim, split, length, desc
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
