@@ -197,7 +197,7 @@ def main():
     )
     roc_df.coalesce(1).write.mode("overwrite").csv("data/dashboard_roc_data", header=True)
 
-    model.write().overwrite().save("models/depression_semantic_model")
+    model.write().overwrite().save("artifacts/models/depression_semantic_model")
 
     # ================================================
     # SEMANTIC EXTRACTION (GRAPH AND BAR CHART)

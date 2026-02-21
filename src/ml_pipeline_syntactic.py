@@ -147,7 +147,7 @@ def main():
     # SAVING MODEL
     #===============
     print("\nSaving the model...")
-    model_path = "models/depression_classifier_model"
+    model_path = "artifacts/models/depression_classifier_model"
     model.write().overwrite().save(model_path)
     print(f"Model correctly saved in: {model_path}")
 

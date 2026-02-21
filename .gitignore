@@ -13,3 +13,5 @@ __pycache__/
 # Ignora cartelle IDE
 .idea/
 .vscode/
+
+temp_graph.html
