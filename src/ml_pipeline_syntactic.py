@@ -95,7 +95,7 @@ def main():
     # vocabSize=5000: top 5000 more relevant words
     # minDF=5.0: Ignore words used by fewer than 5 users (typos, rare errors)
     # maxDF=0.75: Ignore words used by more than 75% of users (e.g., "reddit," "post," "today")
-    cv = CountVectorizer(
+    cv = CountVectorizer(                            # TF
         inputCol="filtered",
         outputCol="raw_features",
         vocabSize=5000,
