@@ -151,6 +151,19 @@ Results indicate:
 
 ---
 
+## Requirements
+
+- pyspark v3.3.1
+- streamlit
+- pandas
+- numpy
+- scikit-learn
+- plotly
+- pyvis
+- python-dotenv
+
+---
+
 ## Disclaimer
 
 This project is intended for academic and research purposes.  
